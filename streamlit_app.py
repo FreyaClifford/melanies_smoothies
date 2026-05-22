@@ -16,7 +16,24 @@ st.write('The name on your smoothie will be: ', name_on_order)
 # conn = st.connection("snowflake")
 # session = conn.session()
 
-session = get_active_session()
+# session = get_active_session()
+
+try:
+    from snowflake.snowpark.context import get_active_session
+    session = get_active_session()
+except:
+    connection_parameters = {
+        "account": st.secrets["snowflake"]["account"],
+        "user": st.secrets["snowflake"]["user"],
+        "password": st.secrets["snowflake"]["password"],
+        "role": st.secrets["snowflake"]["role"],
+        "warehouse": st.secrets["snowflake"]["warehouse"],
+        "database": st.secrets["snowflake"]["database"],
+        "schema": st.secrets["snowflake"]["schema"],
+    }
+
+    session = Session.builder.configs(connection_parameters).create()
+
 my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME"))
 #st.dataframe(data=my_dataframe, use_container_width=True)
 
